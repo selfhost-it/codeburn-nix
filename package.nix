@@ -17,7 +17,7 @@
 }:
 
 let
-  version = "0.9.4";
+  version = "0.9.5";
 
   # Since v0.9.4, `npm run build` invokes `node scripts/bundle-litellm.mjs`,
   # which fetches a JSON snapshot from BerriAI/litellm at build time. Network
@@ -38,12 +38,12 @@ buildNpmPackage {
     owner = "getagentseal";
     repo = "codeburn";
     rev = "v${version}";
-    hash = "sha256-Xkj8aRD3/tjuSjwugGGd3rPICXJUDOWmTSuyjuHSrIQ=";
+    hash = "sha256-54NWcnVXQIDz2JzzFW8SJ+I2Ff6KyumrO3DdrvzuHUE=";
   };
 
   nodejs = nodejs_22;
 
-  npmDepsHash = "sha256-heMgVOzCs8B/OhvjVi9uONb9ysKgvBb1jtXebaO5104=";
+  npmDepsHash = "sha256-vcChnFLiuiymqZb4ojvv7a7Cdg4BYYT+ZraTVELEsQ0=";
 
   # Redirect bundle-litellm.mjs's runtime `fetch()` to read the vendored
   # snapshot from the Nix store. The `if (!res.ok)` check stays as a no-op

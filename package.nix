@@ -17,7 +17,7 @@
 }:
 
 let
-  version = "0.9.10";
+  version = "0.9.11";
 
   # Since v0.9.4, `npm run build` invokes `node scripts/bundle-litellm.mjs`,
   # which fetches a JSON snapshot from BerriAI/litellm at build time. Network
@@ -38,7 +38,7 @@ buildNpmPackage {
     owner = "getagentseal";
     repo = "codeburn";
     rev = "v${version}";
-    hash = "sha256-yaHEb5Yxy7VljN6+ukHmHo4h8wOZVHsHI1pyIYcXIyU=";
+    hash = "sha256-LbaN2fID/ucYjLebKlknh081hdP+h0VpP5Ex8rV1DUs=";
   };
 
   nodejs = nodejs_22;

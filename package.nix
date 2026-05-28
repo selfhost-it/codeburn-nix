@@ -17,7 +17,7 @@
 }:
 
 let
-  version = "0.9.11";
+  version = "0.9.12";
 
   # Since v0.9.4, `npm run build` invokes `node scripts/bundle-litellm.mjs`,
   # which fetches a JSON snapshot from BerriAI/litellm at build time. Network

@@ -6,18 +6,38 @@
 #   1. Change `version`
 #   2. Update `hash` (set to "" and build — nix will tell you the correct hash)
 #   3. Update `npmDepsHash` (set to "" and build — nix will tell you the correct hash)
-#   4. Refresh the litellm price snapshot pinned in `litellmRaw` (see comment below)
-#   5. Run `nix build`
+#   4. Update `dashDeps.hash` the same way (dashboard lockfile in dash/)
+#   5. Refresh the litellm price snapshot pinned in `litellmRaw` (see comment below)
+#   6. Run `nix build`
 
 { lib
 , buildNpmPackage
 , fetchFromGitHub
+, fetchNpmDeps
 , fetchurl
 , nodejs_22
 }:
 
 let
-  version = "0.9.12";
+  version = "0.9.16";
+
+  src = fetchFromGitHub {
+    owner = "getagentseal";
+    repo = "codeburn";
+    rev = "v${version}";
+    hash = "sha256-dAoaFqR3mL2btwuA4eAbabs7OUtXwHB7LBykiY/VQU8=";
+  };
+
+  # Since v0.9.16 the React web dashboard lives in `dash/` as a separate npm
+  # package with its own lockfile, and the root `build` script runs
+  # `cd dash && npm install && npm run build`. That nested install cannot reach
+  # the network in the sandbox, so its dependencies are vendored here as a
+  # second fixed-output derivation and provisioned in `preBuild` instead.
+  dashDeps = fetchNpmDeps {
+    name = "codeburn-${version}-dash-npm-deps";
+    src = "${src}/dash";
+    hash = "sha256-f/vuxG8XSUl1tcYSJGwgdznzVAMk+i/ftdzWr37PF+Y=";
+  };
 
   # Since v0.9.4, `npm run build` invokes `node scripts/bundle-litellm.mjs`,
   # which fetches a JSON snapshot from BerriAI/litellm at build time. Network
@@ -32,18 +52,11 @@ let
 in
 buildNpmPackage {
   pname = "codeburn";
-  inherit version;
-
-  src = fetchFromGitHub {
-    owner = "getagentseal";
-    repo = "codeburn";
-    rev = "v${version}";
-    hash = "sha256-YjvG9mkhszP+tUIgXFCCMKazjEt2qQ11x2Tr78X+7eQ=";
-  };
+  inherit version src;
 
   nodejs = nodejs_22;
 
-  npmDepsHash = "sha256-XXQDxv8fHnpK1pUxBCg38NnHadtbwOjPJW7Q2bdu8vA=";
+  npmDepsHash = "sha256-pReRn6nxvxa/ppovCtdtBfQTG80acTQm5IZcyhCQFmE=";
 
   # Redirect bundle-litellm.mjs's runtime `fetch()` to read the vendored
   # snapshot from the Nix store. The `if (!res.ok)` check stays as a no-op
@@ -63,6 +76,24 @@ buildNpmPackage {
       --replace-fail \
         "const data = await res.json()" \
         "const data = JSON.parse(readFileSync('${litellmRaw}', 'utf8'))"
+
+    # dash/node_modules is provisioned offline in preBuild — drop the
+    # in-script `npm install`, which would otherwise fail against the
+    # root-only npm cache set up by npmConfigHook.
+    substituteInPlace package.json \
+      --replace-fail \
+        "cd dash && npm install --no-audit --no-fund --silent && npm run build" \
+        "cd dash && npm run build"
+  '';
+
+  # Install the dashboard's dependencies from the vendored cache. The cache is
+  # copied out of the store because npm needs write access to it, and
+  # npmConfigHook has already exported npm_config_offline=true for us.
+  preBuild = ''
+    cp -r ${dashDeps} "$TMPDIR/dash-npm-cache"
+    chmod -R u+w "$TMPDIR/dash-npm-cache"
+    npm_config_cache="$TMPDIR/dash-npm-cache" \
+      npm ci --prefix dash --ignore-scripts --no-audit --no-fund
   '';
 
   # tsup bundles src/cli.ts -> dist/cli.js with a #!/usr/bin/env node banner.

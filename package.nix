@@ -19,13 +19,13 @@
 }:
 
 let
-  version = "0.9.20";
+  version = "0.9.21";
 
   src = fetchFromGitHub {
     owner = "getagentseal";
     repo = "codeburn";
     rev = "v${version}";
-    hash = "sha256-t9T6cMIveGsX60HSHKoqXbk7Hrd0CkRxryZUnmgQI5c=";
+    hash = "sha256-wY/xHUxEtw2H/F4AmsLU9eVF4SpOEjcx8SlNAI3aM8c=";
   };
 
   # Since v0.9.16 the React web dashboard lives in `dash/` as a separate npm

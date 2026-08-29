@@ -19,13 +19,13 @@
 }:
 
 let
-  version = "0.9.22";
+  version = "0.9.23";
 
   src = fetchFromGitHub {
     owner = "getagentseal";
     repo = "codeburn";
     rev = "v${version}";
-    hash = "sha256-SdD80Jb+ZKfiZr+LzxIxb4Gq0ffHiYvRyB71GN2KBR4=";
+    hash = "sha256-tM2lpVvfcVDqJbuSi0IRn3vtMqou7psjeSEOaQrDf3U=";
   };
 
   # Since v0.9.16 the React web dashboard lives in `dash/` as a separate npm
@@ -56,7 +56,7 @@ buildNpmPackage {
 
   nodejs = nodejs_22;
 
-  npmDepsHash = "sha256-t36Q1NLjY0I//m/XJrPdxe0a6LvYqgY5+HOphMzlE5M=";
+  npmDepsHash = "sha256-22FANlY5IyBr7zISNC1Lz2FmFqHuAxTKyT1WcVGkwmQ=";
 
   # Redirect bundle-litellm.mjs's runtime `fetch()` to read the vendored
   # snapshot from the Nix store. The `if (!res.ok)` check stays as a no-op

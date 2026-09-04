@@ -19,13 +19,13 @@
 }:
 
 let
-  version = "0.9.23";
+  version = "0.9.24";
 
   src = fetchFromGitHub {
     owner = "getagentseal";
     repo = "codeburn";
     rev = "v${version}";
-    hash = "sha256-tM2lpVvfcVDqJbuSi0IRn3vtMqou7psjeSEOaQrDf3U=";
+    hash = "sha256-opz1jon0MTPy8dCgQ2Ar4mG/PET7XD2PjLgwlle+RB8=";
   };
 
   # Since v0.9.16 the React web dashboard lives in `dash/` as a separate npm
@@ -56,7 +56,7 @@ buildNpmPackage {
 
   nodejs = nodejs_22;
 
-  npmDepsHash = "sha256-22FANlY5IyBr7zISNC1Lz2FmFqHuAxTKyT1WcVGkwmQ=";
+  npmDepsHash = "sha256-VQ7+SvDDr83tZCj53kiBFHoUx7syBFvRzgPmOJoOvDg=";
 
   # Redirect bundle-litellm.mjs's runtime `fetch()` to read the vendored
   # snapshot from the Nix store. The `if (!res.ok)` check stays as a no-op
@@ -78,11 +78,11 @@ buildNpmPackage {
         "const data = JSON.parse(readFileSync('${litellmRaw}', 'utf8'))"
 
     # dash/node_modules is provisioned offline in preBuild — drop the
-    # in-script `npm install`, which would otherwise fail against the
-    # root-only npm cache set up by npmConfigHook.
+    # in-script `npm ci` (was `npm install` before v0.9.24), which would
+    # otherwise fail against the root-only npm cache set up by npmConfigHook.
     substituteInPlace package.json \
       --replace-fail \
-        "cd dash && npm install --no-audit --no-fund --silent && npm run build" \
+        "cd dash && npm ci --no-audit --no-fund --silent && npm run build" \
         "cd dash && npm run build"
   '';
 

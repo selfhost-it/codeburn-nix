@@ -20,7 +20,7 @@ CodeBurn is not yet packaged in nixpkgs. This flake lets you:
 | `package.nix` | Build recipe: fetches the GitHub source, runs `tsup` to bundle, lets `buildNpmPackage` install bin |
 | `default.nix` | Non-flake entry point (NUR-compatible) |
 | `flake.lock` | Pinned inputs |
-| `update.sh` | Autonomous update workflow driven by Claude Code |
+| `update.sh` | Deterministic local update workflow (no LLM required) |
 | `.gitignore` | Excludes Nix build artifacts and editor files |
 
 ## Quick Start
@@ -112,16 +112,33 @@ tags only** — make sure to ignore `mac-*` tags when bumping.
    ```
    Again, paste the hash from the error message.
 
-4. Run `nix build .` again — it should succeed.
+4. Set `dashDeps.hash = "";` and run `nix build .` again to obtain the
+   dashboard's separate npm dependency hash. Paste the reported hash back.
 
-5. Commit and push.
+5. Refresh `litellmRaw` to a specific BerriAI/litellm commit, update its URL,
+   set its `hash = "";`, and rebuild to obtain the fixed-output hash. Never pin
+   this snapshot to a mutable branch such as `main`.
 
-The autonomous workflow `./update.sh` performs all of these steps using Claude Code.
+6. Run `nix build .` again, verify `./result/bin/codeburn --version`, then
+   commit and push.
+
+The deterministic updater performs all four hash updates without an LLM:
+
+```bash
+./update.sh --check              # report whether an update is available
+./update.sh --dry-run            # resolve and validate an update without changing files or building
+./update.sh --no-push            # update, build, verify and commit locally
+./update.sh --version 0.9.24     # target an explicit version
+./update.sh                      # update, build, verify, commit and push
+```
 
 ## Technical Details
 
 - **Source**: Built from the [getagentseal/codeburn](https://github.com/getagentseal/codeburn) GitHub repo
-- **Builder**: `buildNpmPackage` with `npm run build` (which runs `tsup`)
+- **Builder**: `buildNpmPackage` with the root npm dependencies and a separate
+  `dashDeps` fixed-output cache for the React dashboard in `dash/`
+- **Price data**: the build reads a `litellmRaw` snapshot pinned to an immutable
+  BerriAI/litellm commit instead of fetching the mutable file during the sandboxed build
 - **Runtime**: Node.js 22
 - **Native deps**: none (the upstream `mac/` SwiftUI app is not packaged here)
 - **Binary**: `codeburn` (at `$out/bin/codeburn`)

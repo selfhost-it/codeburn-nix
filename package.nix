@@ -64,10 +64,13 @@ buildNpmPackage {
   # upstream restructurings of this script break the build loudly instead
   # of silently producing a stale snapshot.
   postPatch = ''
-    substituteInPlace scripts/bundle-litellm.mjs \
-      --replace-fail \
-        "import { writeFileSync, mkdirSync } from 'fs'" \
-        "import { writeFileSync, mkdirSync, readFileSync } from 'fs'"
+    # v0.9.25 already imports readFileSync; older releases need it added.
+    if ! grep -Fq "import { readFileSync, writeFileSync, mkdirSync } from 'fs'" scripts/bundle-litellm.mjs; then
+      substituteInPlace scripts/bundle-litellm.mjs \
+        --replace-fail \
+          "import { writeFileSync, mkdirSync } from 'fs'" \
+          "import { writeFileSync, mkdirSync, readFileSync } from 'fs'"
+    fi
     substituteInPlace scripts/bundle-litellm.mjs \
       --replace-fail \
         "const res = await fetch(LITELLM_URL)" \

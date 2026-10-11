@@ -19,13 +19,13 @@
 }:
 
 let
-  version = "0.9.26";
+  version = "0.9.27";
 
   src = fetchFromGitHub {
     owner = "getagentseal";
     repo = "codeburn";
     rev = "v${version}";
-    hash = "sha256-+mU3eys0pRFCMd/dh8D/FqElAToTBMuIB2U+upcO0C8=";
+    hash = "sha256-P00axAx78eVa6O2P+5F0aqooPCtX9G1phg3ZgEDFNPE=";
   };
 
   # Since v0.9.16 the React web dashboard lives in `dash/` as a separate npm
@@ -46,8 +46,8 @@ let
   # path. Pin to a specific commit (not `main`) for reproducibility — refresh
   # on bumps by updating `rev`, setting `hash = "";`, and rebuilding.
   litellmRaw = fetchurl {
-    url = "https://raw.githubusercontent.com/BerriAI/litellm/eadbffb69fdcfc5d0604cbe221abbd350b74d3b7/model_prices_and_context_window.json";
-    hash = "sha256-kULYp6gM/T8yqnlyhhV8qayBrdq7ykD/BDBRBSotRII=";
+    url = "https://raw.githubusercontent.com/BerriAI/litellm/ca0ff24726e08444058cab12caef4eb2a12914e9/model_prices_and_context_window.json";
+    hash = "sha256-evu1GEbOd0KLcPvGBPG439XWLHuxJxUljIU33+ELik0=";
   };
 in
 buildNpmPackage {
@@ -56,7 +56,7 @@ buildNpmPackage {
 
   nodejs = nodejs_22;
 
-  npmDepsHash = "sha256-W/Q+nLFrT10soNwdklDW/j+G++yRaQ3pA9BdGd33auQ=";
+  npmDepsHash = "sha256-dz5S3Sajk3QllMDGQu1GO2ws6IAq5dYN3HqDyJI5ryM=";
 
   # Redirect bundle-litellm.mjs's runtime `fetch()` to read the vendored
   # snapshot from the Nix store. The `if (!res.ok)` check stays as a no-op
